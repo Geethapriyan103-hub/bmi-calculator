@@ -1,85 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BMI Calculator with Age & Gender</title>
+  <meta charset="UTF-8">
+  <title>Galaxy BMI Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    /* Background and falling stars */
     body {
-      font-family: Arial, sans-serif;
-      background: #e3f2fd;
-      padding: 20px;
-      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+      color: white;
     }
 
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      width: 4px;
+      height: 4px;
+      animation: fall linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-10px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) translateX(-20px);
+        opacity: 0;
+      }
+    }
+
+    /* Colorful planet on top right */
+    .planet {
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle at 30% 30%, #ff8c00, #ff0080, #6a00ff);
+      border-radius: 50%;
+      z-index: 0;
+      box-shadow: 0 0 50px #ff8c00aa;
+    }
+
+    /* Container (glass style) */
     .container {
-      max-width: 400px;
-      margin: 50px auto;
-      background: white;
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
       padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
     }
 
-    input[type="number"], input[type="radio"] {
-      margin: 10px 0;
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 14px;
     }
 
     input[type="number"] {
-      width: 80%;
+      width: 100%;
       padding: 10px;
+      border-radius: 10px;
+      border: none;
       font-size: 16px;
+      margin-bottom: 10px;
     }
 
-    .gender-group {
-      margin: 10px 0;
+    .gender {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .gender label {
+      font-size: 14px;
     }
 
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: white;
+      width: 100%;
+      padding: 12px;
+      background: #ff6ec4;
+      background: linear-gradient(to right, #ff6ec4, #7873f5);
       border: none;
-      border-radius: 5px;
+      color: white;
+      font-size: 16px;
+      border-radius: 10px;
       cursor: pointer;
-      margin-top: 15px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
+      margin-top: 10px;
     }
 
     .result {
       margin-top: 20px;
-      font-size: 18px;
-    }
-
-    .status {
-      font-weight: bold;
-      color: #28a745;
+      text-align: center;
+      font-size: 17px;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
 
+  <div class="planet"></div>
+  <div class="stars" id="stars"></div>
+
   <div class="container">
-    <h2>BMI Calculator</h2>
+    <h2>🚀BMI Calculator</h2>
 
-    <label for="age">Age:</label><br>
-    <input type="number" id="age" placeholder="Enter your age"><br>
+    <label for="age">Age</label>
+    <input type="number" id="age" placeholder="Enter your age" min="1">
 
-    <div class="gender-group">
-      Gender:<br>
-      <label><input type="radio" name="gender" value="Male" checked> Male</label>
-      <label><input type="radio" name="gender" value="Female"> Female</label>
+    <label>Gender</label>
+    <div class="gender">
+      <label><input type="radio" name="gender" value="male" checked> Male</label>
+      <label><input type="radio" name="gender" value="female"> Female</label>
     </div>
 
-    <label for="weight">Weight (kg):</label><br>
-    <input type="number" id="weight" placeholder="Enter your weight"><br>
+    <label for="height">Height (cm)</label>
+    <input type="number" id="height" placeholder="Enter your height in cm" min="1">
 
-    <label for="height">Height (cm):</label><br>
-    <input type="number" id="height" placeholder="Enter your height"><br>
+    <label for="weight">Weight (kg)</label>
+    <input type="number" id="weight" placeholder="Enter your weight in kg" min="1">
 
     <button onclick="calculateBMI()">Calculate BMI</button>
 
@@ -88,38 +157,53 @@
 
   <script>
     function calculateBMI() {
-      let age = document.getElementById("age").value;
-      let weight = document.getElementById("weight").value;
-      let height = document.getElementById("height").value;
-      let gender = document.querySelector('input[name="gender"]:checked').value;
+      const height = parseFloat(document.getElementById("height").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const age = parseInt(document.getElementById("age").value);
+      const gender = document.querySelector('input[name="gender"]:checked').value;
+      const result = document.getElementById("result");
 
-      if (age === "" || weight === "" || height === "") {
-        alert("Please fill in all fields.");
+      if (!height || !weight || !age) {
+        result.textContent = "❗ Please fill all fields correctly.";
         return;
       }
 
-      height = height / 100;
-      let bmi = weight / (height * height);
-      bmi = bmi.toFixed(2);
-
+      const heightM = height / 100;
+      const bmi = weight / (heightM * heightM);
       let status = "";
 
-      if (bmi < 18.5) {
-        status = "Underweight";
-      } else if (bmi >= 18.5 && bmi < 24.9) {
-        status = "Normal weight";
-      } else if (bmi >= 25 && bmi < 29.9) {
-        status = "Overweight";
-      } else {
-        status = "Obese";
-      }
+      if (bmi < 18.5) status = "Underweight";
+      else if (bmi < 24.9) status = "Normal weight";
+      else if (bmi < 29.9) status = "Overweight";
+      else status = "Obese";
 
-      document.getElementById("result").innerHTML = `
-        Age: <strong>${age}</strong><br>
-        Gender: <strong>${gender}</strong><br>
-        Your BMI is <strong>${bmi}</strong><br>
-        <span class="status">${status}</span>
+      // Ideal weight range (BMI between 18.5 and 24.9)
+      const minWeight = (18.5 * heightM * heightM).toFixed(1);
+      const maxWeight = (24.9 * heightM * heightM).toFixed(1);
+
+      result.innerHTML = `
+        👤 Gender: <strong>${gender}</strong><br>
+        🎂 Age: <strong>${age}</strong><br>
+        📏 Height: <strong>${height} cm</strong><br>
+        ⚖️ Weight: <strong>${weight} kg</strong><br><br>
+        📊 <strong>Your BMI:</strong> ${bmi.toFixed(2)} (${status})<br>
+        ✅ <strong>Recommended Weight:</strong> ${minWeight} kg – ${maxWeight} kg
       `;
+    }
+
+    // Generate colorful fast-falling stars
+    const starContainer = document.getElementById('stars');
+    const colors = ['#ff5f6d', '#ffc371', '#24c6dc', '#a6c0fe', '#fddb92'];
+
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + 'vw';
+      star.style.top = Math.random() * -100 + 'vh';
+      star.style.background = colors[Math.floor(Math.random() * colors.length)];
+      star.style.animationDuration = (Math.random() * 2 + 1) + 's'; // faster
+      star.style.animationDelay = Math.random() * 5 + 's';
+      starContainer.appendChild(star);
     }
   </script>
 
